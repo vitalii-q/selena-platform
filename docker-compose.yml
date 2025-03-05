@@ -25,7 +25,7 @@ services:
       - "26257:26257"
       - "${DB_PORT}:9264"
     volumes:
-    - cockroach_data_${PROJECT_SUFFIX:?err}:/cockroach/cockroach-data
+    - cockroach_data:/cockroach/cockroach-data
 
   redis:
     image: redis:7
@@ -33,7 +33,7 @@ services:
     ports:
       - "${REDIS_PORT}:9764"
     volumes:
-      - redis_data_${PROJECT_SUFFIX}:/data
+      - redis_data:/data
 
   users-service:
     image: ghcr.io/vitalii-q/selena-users-service/users-service:latest
@@ -54,5 +54,5 @@ services:
       - ./users-service/.env
 
 volumes:
-  cockroach_data_dev: {}
-  redis_data_dev: {}
+  cockroach_data: {}
+  redis_data: {}
