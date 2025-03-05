@@ -1,0 +1,58 @@
+version: "3.8"
+# link http://localhost:9064/
+
+services:      
+  hotel-service:
+    image: ghcr.io/vitalii-q/selena-hotel-service/hotel-service:latest
+    build: 
+      context: ./hotel-service
+      dockerfile: Dockerfile
+    container_name: hotel-service_${PROJECT_SUFFIX}
+    ports:
+      - "${SELENA_PORT}:9064"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+      - ./hotel-service/.env
+
+  db:
+    image: cockroachdb/cockroach:v22.2.7
+    container_name: cockroachdb_${PROJECT_SUFFIX}
+    command: start-single-node --insecure
+    ports:
+      - "26257:26257"
+      - "${DB_PORT}:9264"
+    volumes:
+    - cockroach_data_${PROJECT_SUFFIX:?err}:/cockroach/cockroach-data
+
+  redis:
+    image: redis:7
+    container_name: redis_${PROJECT_SUFFIX}
+    ports:
+      - "${REDIS_PORT}:9764"
+    volumes:
+      - redis_data_${PROJECT_SUFFIX}:/data
+
+  user-service:
+    image: ghcr.io/vitalii-q/selena-user-service/user-service:latest
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service_${PROJECT_SUFFIX}
+    ports:
+      - mode: ingress
+        target: ${USER_SERVICE_PORT}
+        published: ${USER_SERVICE_PORT}
+        protocol: tcp
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+      - ./user-service/.env
+
+volumes:
+  cockroach_data_dev: {}
+  redis_data_dev: {}
