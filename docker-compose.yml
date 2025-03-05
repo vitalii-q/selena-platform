@@ -2,12 +2,12 @@ version: "3.8"
 # link http://localhost:9064/
 
 services:      
-  hotel-service:
-    image: ghcr.io/vitalii-q/selena-hotel-service/hotel-service:latest
+  hotels-service:
+    image: ghcr.io/vitalii-q/selena-hotels-service/hotels-service:latest
     build: 
-      context: ./hotel-service
+      context: ./hotels-service
       dockerfile: Dockerfile
-    container_name: hotel-service_${PROJECT_SUFFIX}
+    container_name: hotels-service_${PROJECT_SUFFIX}
     ports:
       - "${SELENA_PORT}:9064"
     depends_on:
@@ -15,7 +15,7 @@ services:
       - redis
     env_file:
       - .env
-      - ./hotel-service/.env
+      - ./hotels-service/.env
 
   db:
     image: cockroachdb/cockroach:v22.2.7
@@ -35,12 +35,12 @@ services:
     volumes:
       - redis_data_${PROJECT_SUFFIX}:/data
 
-  user-service:
-    image: ghcr.io/vitalii-q/selena-user-service/user-service:latest
+  users-service:
+    image: ghcr.io/vitalii-q/selena-users-service/users-service:latest
     build:
-      context: ./user-service
+      context: ./users-service
       dockerfile: Dockerfile
-    container_name: user-service_${PROJECT_SUFFIX}
+    container_name: users-service_${PROJECT_SUFFIX}
     ports:
       - mode: ingress
         target: ${USER_SERVICE_PORT}
@@ -51,7 +51,7 @@ services:
       - redis
     env_file:
       - .env
-      - ./user-service/.env
+      - ./users-service/.env
 
 volumes:
   cockroach_data_dev: {}
