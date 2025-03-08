@@ -22,7 +22,6 @@ services:
     container_name: cockroachdb_${PROJECT_SUFFIX}
     command: start-single-node --insecure
     ports:
-      - "26257:26257"
       - "${DB_PORT}:9264"
     volumes:
     - cockroach_data:/cockroach/cockroach-data
