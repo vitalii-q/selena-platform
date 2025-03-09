@@ -11,13 +11,31 @@ services:
     ports:
       - "${SELENA_PORT}:9064"
     depends_on:
-      - db
+      - cockroachdb
       - redis
     env_file:
       - .env
       - ./hotels-service/.env
 
-  db:
+  users-service:
+    image: ghcr.io/vitalii-q/selena-users-service/users-service:latest
+    build:
+      context: ./users-service
+      dockerfile: Dockerfile
+    container_name: users-service_${PROJECT_SUFFIX}
+    ports:
+      - mode: ingress
+        target: ${USER_SERVICE_PORT}
+        published: ${USER_SERVICE_PORT}
+        protocol: tcp
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+      - ./users-service/.env
+
+  cockroachdb:
     image: cockroachdb/cockroach:v22.2.7
     container_name: cockroachdb_${PROJECT_SUFFIX}
     command: start-single-node --insecure
@@ -34,24 +52,19 @@ services:
     volumes:
       - redis_data:/data
 
-  users-service:
-    image: ghcr.io/vitalii-q/selena-users-service/users-service:latest
-    build:
-      context: ./users-service
-      dockerfile: Dockerfile
-    container_name: users-service_${PROJECT_SUFFIX}
+  postgres:
+    image: postgres:13
+    container_name: postgres_${PROJECT_SUFFIX}
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_NAME}
     ports:
-      - mode: ingress
-        target: ${USER_SERVICE_PORT}
-        published: ${USER_SERVICE_PORT}
-        protocol: tcp
-    depends_on:
-      - db
-      - redis
-    env_file:
-      - .env
-      - ./users-service/.env
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
   cockroach_data: {}
   redis_data: {}
+  postgres_data: {}

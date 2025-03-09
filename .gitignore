@@ -35,3 +35,5 @@ users-service/
 payments-service/
 notifications-service/
 kong/
+
+/k8s
