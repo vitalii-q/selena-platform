@@ -35,6 +35,22 @@ services:
       - .env
       - ./users-service/.env
 
+  bookings-service:
+    image: ghcr.io/vitalii-q/selena-bookings-service/bookings-service:latest
+    container_name: bookings-service_${PROJECT_SUFFIX}
+    build:
+      context: ./bookings-service
+      dockerfile: Dockerfile
+    ports:
+      - "9066:9066"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mariadb:9266/bookings
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=password
+    depends_on:
+      - mariadb
+    command: ["wait-for-mariadb.sh", "db:3306", "--", "java", "-jar", "/app.jar"]
+
   cockroachdb:
     image: cockroachdb/cockroach:v22.2.7
     container_name: cockroachdb_${PROJECT_SUFFIX}
@@ -43,14 +59,6 @@ services:
       - "${DB_PORT}:9264"
     volumes:
     - cockroach_data:/cockroach/cockroach-data
-
-  redis:
-    image: redis:7
-    container_name: redis_${PROJECT_SUFFIX}
-    ports:
-      - "${REDIS_PORT}:9764"
-    volumes:
-      - redis_data:/data
 
   postgres:
     image: postgres:13
@@ -64,7 +72,37 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb_${PROJECT_SUFFIX}
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: bookings
+    ports:
+      - "${MARIADB_PORT}:9266"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--host=127.0.0.1", "--user=root", "--password=password"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7
+    container_name: redis_${PROJECT_SUFFIX}
+    ports:
+      - "${REDIS_PORT}:9764"
+    volumes:
+      - redis_data:/data
+
 volumes:
   cockroach_data: {}
   redis_data: {}
   postgres_data: {}
+  mariadb_data: {}
+
+networks:
+  app-network:
+    driver: bridge
