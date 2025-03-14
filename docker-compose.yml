@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile
     container_name: hotels-service_${PROJECT_SUFFIX}
     ports:
-      - "${SELENA_PORT}:9064"
+      - "${HOTELS_SERVICE_PORT}:${HOTELS_SERVICE_PORT}"
     depends_on:
       - cockroachdb
       - redis
@@ -42,7 +42,7 @@ services:
       context: ./bookings-service
       dockerfile: Dockerfile
     ports:
-      - "9066:9066"
+      - "${BOOKINGS_SERVICE_PORT}:${BOOKINGS_SERVICE_PORT}"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mariadb:9266/bookings
       - SPRING_DATASOURCE_USERNAME=root
