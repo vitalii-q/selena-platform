@@ -4,7 +4,7 @@ version: "3.8"
 services:      
   hotels-service:
     container_name: hotels-service_${PROJECT_SUFFIX}
-    image: ghcr.io/vitalii-q/selena-hotels-service/hotels-service:latest
+    image: ghcr.io/vitalii-q/selena/hotels-service:latest
     build: 
       context: ./hotels-service
       dockerfile: Dockerfile
@@ -19,7 +19,7 @@ services:
 
   users-service:
     container_name: users-service_${PROJECT_SUFFIX}
-    image: ghcr.io/vitalii-q/selena-users-service/users-service:latest
+    image: ghcr.io/vitalii-q/selena/users-service:latest
     build:
       context: ./users-service
       dockerfile: Dockerfile
@@ -37,7 +37,7 @@ services:
 
   bookings-service:
     container_name: bookings-service_${PROJECT_SUFFIX}
-    image: ghcr.io/vitalii-q/selena-bookings-service/bookings-service:latest
+    image: ghcr.io/vitalii-q/selena/bookings-service:latest
     build:
       context: ./bookings-service
       dockerfile: Dockerfile
