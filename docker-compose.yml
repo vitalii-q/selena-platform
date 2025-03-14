@@ -3,11 +3,11 @@ version: "3.8"
 
 services:      
   hotels-service:
+    container_name: hotels-service_${PROJECT_SUFFIX}
     image: ghcr.io/vitalii-q/selena-hotels-service/hotels-service:latest
     build: 
       context: ./hotels-service
       dockerfile: Dockerfile
-    container_name: hotels-service_${PROJECT_SUFFIX}
     ports:
       - "${HOTELS_SERVICE_PORT}:${HOTELS_SERVICE_PORT}"
     depends_on:
@@ -18,11 +18,11 @@ services:
       - ./hotels-service/.env
 
   users-service:
+    container_name: users-service_${PROJECT_SUFFIX}
     image: ghcr.io/vitalii-q/selena-users-service/users-service:latest
     build:
       context: ./users-service
       dockerfile: Dockerfile
-    container_name: users-service_${PROJECT_SUFFIX}
     ports:
       - mode: ingress
         target: ${USER_SERVICE_PORT}
@@ -36,8 +36,8 @@ services:
       - ./users-service/.env
 
   bookings-service:
-    image: ghcr.io/vitalii-q/selena-bookings-service/bookings-service:latest
     container_name: bookings-service_${PROJECT_SUFFIX}
+    image: ghcr.io/vitalii-q/selena-bookings-service/bookings-service:latest
     build:
       context: ./bookings-service
       dockerfile: Dockerfile
