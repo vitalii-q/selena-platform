@@ -61,6 +61,8 @@ services:
       - "${COCKROACH_PORT}:${COCKROACH_PORT}"
     volumes:
     - cockroach_data:/cockroach/cockroach-data
+    env_file:
+      - .env
 
   postgres:
     image: postgres:13
