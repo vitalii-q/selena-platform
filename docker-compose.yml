@@ -118,7 +118,7 @@ services:
   kong-migrations:
     image: kong/kong-gateway:latest
     container_name: kong-migrations
-    restart: on-failure
+    restart: "no"
     depends_on:
       - kong-database
     environment:
