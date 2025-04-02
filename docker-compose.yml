@@ -35,7 +35,10 @@ services:
       - .env
       - ./users-service/.env
     volumes:
-      - ./users-service/config:/config
+      - ./users-service:/app/users-service
+      - /app/users-service/bin
+      - /app/users-service/tmp
+    command: air -c .air.toml  # Запускаем air в контейнере для горячей перезагрузки
 
   bookings-service:
     container_name: bookings-service_${PROJECT_SUFFIX}
@@ -101,11 +104,59 @@ services:
     volumes:
       - redis_data:/data
 
+  kong-database:
+    image: postgres:15
+    container_name: kong-database
+    restart: always
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kong
+      POSTGRES_DB: kong
+    ports:
+      - "5433:5432"
+
+  kong-migrations:
+    image: kong/kong-gateway:latest
+    container_name: kong-migrations
+    restart: on-failure
+    depends_on:
+      - kong-database
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+    command: kong migrations bootstrap
+
+  kong:
+    image: kong/kong-gateway:latest
+    container_name: kong
+    restart: always
+    depends_on:
+      - kong-database
+      - kong-migrations
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+    ports:
+      - "8000:8000"   # HTTP-прокси
+      - "8443:8443"   # HTTPS-прокси (если нужно)
+      - "8001:8001"   # Админ-интерфейс Kong
+      - "8444:8444"
+    volumes:
+      - ./api-gateway/config:/etc/kong/
+      - ./api-gateway/plugins:/usr/local/kong/plugins/
+
 volumes:
   cockroach_data: {}
   redis_data: {}
   postgres_data: {}
   mariadb_data: {}
+  kong_data: {}
 
 networks:
   app-network:

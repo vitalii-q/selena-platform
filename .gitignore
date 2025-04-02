@@ -35,6 +35,6 @@ bookings-service/
 users-service/
 payments-service/
 notifications-service/
-kong/
+api-gateway/
 
 /k8s
