@@ -123,23 +123,27 @@ services:
       start_period: 10s
     networks:
     - kong_network
+    volumes:
+    - kong-db-data:/var/lib/postgresql/data
 
   kong-migrations:
     image: kong/kong-gateway:latest
     container_name: kong-migrations_${PROJECT_SUFFIX}
-    restart: "no"
-    depends_on:
-      - kong-db
+    restart: on-failure
     environment:
       KONG_DATABASE: postgres
       KONG_PG_HOST: kong-db_${PROJECT_SUFFIX}
       KONG_PG_USER: kong
       KONG_PG_PASSWORD: kong
       KONG_PG_PORT: "5432"
-    command: kong migrations bootstrap
+    #command: kong migrations bootstrap
     #command: ["sh", "-c", "kong migrations bootstrap && tail -f /dev/null"]
     networks:
       - kong_network
+    entrypoint: ["sh", "-c", "kong migrations bootstrap && exit 0"]
+    depends_on:
+      kong-db:
+        condition: service_healthy
 
   kong:
     image: kong/kong-gateway:latest
@@ -153,6 +157,8 @@ services:
       KONG_ADMIN_LISTEN: "0.0.0.0:8001"
       KONG_PG_PORT: "5432"
       #KONG_CONFIG: "/etc/kong/kong.conf"
+      KONG_ADMIN_GUI_SSL_CERT: /usr/local/kong/ssl/admin-gui-kong-default.crt   
+      KONG_ADMIN_GUI_SSL_CERT_KEY: /usr/local/kong/ssl/admin-gui-kong-default.key
     ports:
       - "8000:8000"   # HTTP-прокси
       - "8443:8443"   # HTTPS-прокси (если нужно)
@@ -163,15 +169,17 @@ services:
       - ./api-gateway/config:/etc/kong/
       - ./api-gateway/certs/admin-gui-kong-default.crt:/usr/local/kong/ssl/admin-gui-kong-default.crt
       - ./api-gateway/certs/admin-gui-kong-default.key:/usr/local/kong/ssl/admin-gui-kong-default.key
+      - ./api-gateway/certs/ffdhe2048.pem:/usr/local/kong/ssl/ffdhe2048.pem
       - ./api-gateway/plugins:/usr/local/kong/plugins/
       - ./wait-for-it.sh:/wait-for-it.sh
     networks:
       - kong_network
     depends_on:
-      - kong-db
-      - kong-migrations
-    command: ["bash", "/wait-for-it.sh", "kong-migrations:9000", "--timeout=15", "--", "kong", "reload"]
-
+      kong-db:
+        condition: service_healthy
+      kong-migrations:
+        condition: service_completed_successfully
+    command: ["kong", "start"]
 
   konga-db:
     image: postgres:15
@@ -210,6 +218,7 @@ volumes:
   redis-data: {}
   postgres-data: {}
   mariadb-data: {}
+  kong-db-data: {}
   kong-data: {}
   konga-data: {}
 
