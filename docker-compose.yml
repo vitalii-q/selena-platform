@@ -11,7 +11,7 @@ services:
     ports:
       - "${HOTELS_SERVICE_PORT}:${HOTELS_SERVICE_PORT}"
     depends_on:
-      - cockroachdb
+      - cockroach-db
       - redis
     env_file:
       - .env
@@ -53,17 +53,17 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=password
     depends_on:
-      - mariadb
+      - maria-db
     command: ["wait-for-mariadb.sh", "db:3306", "--", "java", "-jar", "/app.jar"]
 
-  cockroachdb:
+  cockroach-db:
     image: cockroachdb/cockroach:v22.2.7
-    container_name: cockroachdb_${PROJECT_SUFFIX}
+    container_name: cockroach-db_${PROJECT_SUFFIX}
     command: start-single-node --insecure
     ports:
       - "${COCKROACH_PORT}:${COCKROACH_PORT}"
     volumes:
-    - cockroach_data:/cockroach/cockroach-data
+    - cockroach-data:/cockroach/cockroach-data
 
   postgres:
     image: postgres:13
@@ -77,11 +77,11 @@ services:
     networks:
       - app-network
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
 
-  mariadb:
+  maria-db:
     image: mariadb:latest
-    container_name: mariadb_${PROJECT_SUFFIX}
+    container_name: maria-db_${PROJECT_SUFFIX}
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: bookings
@@ -95,6 +95,8 @@ services:
       timeout: 10s
     networks:
       - app-network
+    volumes:
+    - mariadb-data:/var/lib/mysql
 
   redis:
     image: redis:7
@@ -102,11 +104,11 @@ services:
     ports:
       - "${REDIS_PORT}:${REDIS_PORT}"
     volumes:
-      - redis_data:/data
+      - redis-data:/data
 
-  kong-database:
+  kong-db:
     image: postgres:15
-    container_name: kong-database
+    container_name: kong-db_${PROJECT_SUFFIX}
     restart: always
     environment:
       POSTGRES_USER: kong
@@ -114,50 +116,107 @@ services:
       POSTGRES_DB: kong
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+    - kong_network
 
   kong-migrations:
     image: kong/kong-gateway:latest
-    container_name: kong-migrations
+    container_name: kong-migrations_${PROJECT_SUFFIX}
     restart: "no"
     depends_on:
-      - kong-database
+      - kong-db
     environment:
       KONG_DATABASE: postgres
-      KONG_PG_HOST: kong-database
+      KONG_PG_HOST: kong-db_${PROJECT_SUFFIX}
       KONG_PG_USER: kong
       KONG_PG_PASSWORD: kong
+      KONG_PG_PORT: "5432"
     command: kong migrations bootstrap
+    #command: ["sh", "-c", "kong migrations bootstrap && tail -f /dev/null"]
+    networks:
+      - kong_network
 
   kong:
     image: kong/kong-gateway:latest
-    container_name: kong
-    restart: always
-    depends_on:
-      - kong-database
-      - kong-migrations
+    container_name: kong_${PROJECT_SUFFIX}
     environment:
       KONG_DATABASE: postgres
-      KONG_PG_HOST: kong-database
+      KONG_PG_HOST: kong-db_${PROJECT_SUFFIX}
       KONG_PG_USER: kong
       KONG_PG_PASSWORD: kong
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_PG_PORT: "5432"
+      #KONG_CONFIG: "/etc/kong/kong.conf"
     ports:
       - "8000:8000"   # HTTP-прокси
       - "8443:8443"   # HTTPS-прокси (если нужно)
       - "8001:8001"   # Админ-интерфейс Kong
       - "8444:8444"
     volumes:
+      - ./api-gateway/config/.kong_env:/usr/local/kong/.kong_env
       - ./api-gateway/config:/etc/kong/
+      - ./api-gateway/certs/admin-gui-kong-default.crt:/usr/local/kong/ssl/admin-gui-kong-default.crt
+      - ./api-gateway/certs/admin-gui-kong-default.key:/usr/local/kong/ssl/admin-gui-kong-default.key
       - ./api-gateway/plugins:/usr/local/kong/plugins/
+      - ./wait-for-it.sh:/wait-for-it.sh
+    networks:
+      - kong_network
+    depends_on:
+      - kong-db
+      - kong-migrations
+    command: ["bash", "/wait-for-it.sh", "kong-migrations:9000", "--timeout=15", "--", "kong", "reload"]
+
+
+  konga-db:
+    image: postgres:15
+    container_name: konga-db_${PROJECT_SUFFIX}
+    restart: always
+    environment:
+      POSTGRES_USER: konga_user
+      POSTGRES_PASSWORD: konga_password
+      POSTGRES_DB: konga_db
+    ports:
+      - "5434:5432"  # Порт для доступа к базе данных Konga
+
+  konga:
+    image: pantsel/konga
+    container_name: konga_${PROJECT_SUFFIX}
+    platform: linux/amd64  # Добавляем поддержку платформы
+    ports:
+      - "1337:1337"
+    networks:
+      - selena-dev_default
+    environment:
+      KONGA_HOST: kong:8001
+      KONGA_NODE_ID: kong
+      KONGA_DB_ADAPTER: "postgres"
+      KONGA_DB_HOST: "konga-db_${PROJECT_SUFFIX}"  # Имя нового контейнера с БД для Konga
+      KONGA_DB_USER: "konga_user"       # Имя пользователя для подключения
+      KONGA_DB_PASSWORD: "konga_password"  # Пароль для подключения
+      KONGA_DB_NAME: "konga_db"          # Имя базы данных для Konga
+    volumes:
+    - konga-data:/app/konga
+    depends_on:
+      - konga-db
 
 volumes:
-  cockroach_data: {}
-  redis_data: {}
-  postgres_data: {}
-  mariadb_data: {}
-  kong_data: {}
+  cockroach-data: {}
+  redis-data: {}
+  postgres-data: {}
+  mariadb-data: {}
+  kong-data: {}
+  konga-data: {}
 
 networks:
   app-network:
+    driver: bridge
+  selena-dev_default:
+    driver: bridge
+  kong_network:
     driver: bridge
