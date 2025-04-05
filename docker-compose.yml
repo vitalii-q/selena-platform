@@ -80,7 +80,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   maria-db:
-    image: mariadb:latest
+    image: mariadb:10.11
     container_name: maria-db_${PROJECT_SUFFIX}
     environment:
       MYSQL_ROOT_PASSWORD: password
@@ -127,7 +127,7 @@ services:
     - kong-db-data:/var/lib/postgresql/data
 
   kong-migrations:
-    image: kong/kong-gateway:latest
+    image: kong:3.9
     container_name: kong-migrations_${PROJECT_SUFFIX}
     restart: on-failure
     environment:
@@ -146,7 +146,7 @@ services:
         condition: service_healthy
 
   kong:
-    image: kong/kong-gateway:latest
+    image: kong:3.9
     container_name: kong_${PROJECT_SUFFIX}
     environment:
       KONG_DATABASE: postgres
@@ -156,14 +156,15 @@ services:
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       KONG_ADMIN_LISTEN: "0.0.0.0:8001"
       KONG_PG_PORT: "5432"
-      #KONG_CONFIG: "/etc/kong/kong.conf"
+      KONG_PORTAL: "true"                     # Включаем портал
+      KONG_PORTAL_GUI_HOST: "localhost:8003"   # Адрес для доступа, если доступ из локальной сети
+      KONG_PORTAL_API_URI: "http://kong:8001"  # URL API для порта администратора
       KONG_ADMIN_GUI_SSL_CERT: /usr/local/kong/ssl/admin-gui-kong-default.crt   
       KONG_ADMIN_GUI_SSL_CERT_KEY: /usr/local/kong/ssl/admin-gui-kong-default.key
     ports:
       - "8000:8000"   # HTTP-прокси
-      - "8443:8443"   # HTTPS-прокси (если нужно)
-      - "8001:8001"   # Админ-интерфейс Kong
-      - "8444:8444"
+      - "8443:8443"   # HTTPS-прокси
+      - "8001:8001"   # Админ-интерфейс Kong (для взаимодействия с API)
     volumes:
       - ./api-gateway/config/.kong_env:/usr/local/kong/.kong_env
       - ./api-gateway/config:/etc/kong/
@@ -174,6 +175,11 @@ services:
       - ./wait-for-it.sh:/wait-for-it.sh
     networks:
       - kong_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     depends_on:
       kong-db:
         condition: service_healthy
@@ -181,37 +187,25 @@ services:
         condition: service_completed_successfully
     command: ["kong", "start"]
 
-  konga-db:
-    image: postgres:15
-    container_name: konga-db_${PROJECT_SUFFIX}
-    restart: always
+  kong-manager:
+    image: kong/kong-manager:3.9.0  # Это контейнер для Kong Manager
+    container_name: kong-manager
     environment:
-      POSTGRES_USER: konga_user
-      POSTGRES_PASSWORD: konga_password
-      POSTGRES_DB: konga_db
+      - KONG_MANAGER_HOST=0.0.0.0
+      - KONG_MANAGER_PORT=8004  # Порт для доступа к Kong Manager
+      - KONG_API_URI=http://kong:8001  # Указание на админку Kong
+      - KONG_PG_HOST=kong-db_${PROJECT_SUFFIX}
+      - KONG_PG_PORT=5432
+      - KONG_PG_USER=kong
+      - KONG_PG_PASSWORD=kong
+      - KONG_PG_DATABASE=kong
     ports:
-      - "5434:5432"  # Порт для доступа к базе данных Konga
-
-  konga:
-    image: pantsel/konga
-    container_name: konga_${PROJECT_SUFFIX}
-    platform: linux/amd64  # Добавляем поддержку платформы
-    ports:
-      - "1337:1337"
+      - "8444:8444"   # Админ-интерфейс Kong (SSL)
+      - "8004:8004"   # Порт для доступа к Kong Manager
     networks:
-      - selena-dev_default
-    environment:
-      KONGA_HOST: kong:8001
-      KONGA_NODE_ID: kong
-      KONGA_DB_ADAPTER: "postgres"
-      KONGA_DB_HOST: "konga-db_${PROJECT_SUFFIX}"  # Имя нового контейнера с БД для Konga
-      KONGA_DB_USER: "konga_user"       # Имя пользователя для подключения
-      KONGA_DB_PASSWORD: "konga_password"  # Пароль для подключения
-      KONGA_DB_NAME: "konga_db"          # Имя базы данных для Konga
-    volumes:
-    - konga-data:/app/konga
+      - kong_network
     depends_on:
-      - konga-db
+      - kong
 
 volumes:
   cockroach-data: {}
@@ -220,12 +214,9 @@ volumes:
   mariadb-data: {}
   kong-db-data: {}
   kong-data: {}
-  konga-data: {}
 
 networks:
   app-network:
-    driver: bridge
-  selena-dev_default:
     driver: bridge
   kong_network:
     driver: bridge
