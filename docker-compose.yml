@@ -187,26 +187,6 @@ services:
         condition: service_completed_successfully
     command: ["kong", "start"]
 
-  kong-manager:
-    image: kong/kong-manager:3.9.0  # Это контейнер для Kong Manager
-    container_name: kong-manager
-    environment:
-      - KONG_MANAGER_HOST=0.0.0.0
-      - KONG_MANAGER_PORT=8004  # Порт для доступа к Kong Manager
-      - KONG_API_URI=http://kong:8001  # Указание на админку Kong
-      - KONG_PG_HOST=kong-db_${PROJECT_SUFFIX}
-      - KONG_PG_PORT=5432
-      - KONG_PG_USER=kong
-      - KONG_PG_PASSWORD=kong
-      - KONG_PG_DATABASE=kong
-    ports:
-      - "8444:8444"   # Админ-интерфейс Kong (SSL)
-      - "8004:8004"   # Порт для доступа к Kong Manager
-    networks:
-      - kong_network
-    depends_on:
-      - kong
-
 volumes:
   cockroach-data: {}
   redis-data: {}
