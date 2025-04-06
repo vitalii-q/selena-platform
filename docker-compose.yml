@@ -27,7 +27,7 @@ services:
     ports:
       - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
     networks:
-      - app-network
+      - app_network
     depends_on:
       - postgres
       - redis
@@ -75,7 +75,7 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
     networks:
-      - app-network
+      - app_network
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
@@ -94,7 +94,7 @@ services:
       start_period: 30s
       timeout: 10s
     networks:
-      - app-network
+      - app_network
     volumes:
     - mariadb-data:/var/lib/mysql
 
@@ -122,7 +122,7 @@ services:
       retries: 5
       start_period: 10s
     networks:
-    - kong_network
+    - app_network
     volumes:
     - kong-db-data:/var/lib/postgresql/data
 
@@ -139,7 +139,7 @@ services:
     #command: kong migrations bootstrap
     #command: ["sh", "-c", "kong migrations bootstrap && tail -f /dev/null"]
     networks:
-      - kong_network
+      - app_network
     entrypoint: ["sh", "-c", "kong migrations bootstrap && exit 0"]
     depends_on:
       kong-db:
@@ -174,7 +174,7 @@ services:
       - ./api-gateway/plugins:/usr/local/kong/plugins/
       - ./wait-for-it.sh:/wait-for-it.sh
     networks:
-      - kong_network
+      - app_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001"]
       interval: 10s
@@ -196,7 +196,5 @@ volumes:
   kong-data: {}
 
 networks:
-  app-network:
-    driver: bridge
-  kong_network:
+  app_network:
     driver: bridge
