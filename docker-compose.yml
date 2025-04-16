@@ -140,7 +140,8 @@ services:
     #command: ["sh", "-c", "kong migrations bootstrap && tail -f /dev/null"]
     networks:
       - app_network
-    entrypoint: ["sh", "-c", "kong migrations bootstrap && exit 0"]
+    #entrypoint: ["sh", "-c", "kong migrations bootstrap && exit 0"]
+    entrypoint: ["sh", "-c", "kong migrations up && kong migrations finish && exit 0"]
     depends_on:
       kong-db:
         condition: service_healthy
