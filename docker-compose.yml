@@ -97,7 +97,7 @@ services:
       - app_network
     volumes:
     - mariadb-data:/var/lib/mysql
-    - ./booking-service/_docker/mariadb:/docker-entrypoint-initdb.d
+    - ./bookings-service/_docker/db:/docker-entrypoint-initdb.d
 
   redis:
     image: redis:7
