@@ -61,7 +61,7 @@ services:
     container_name: cockroach-db_${PROJECT_SUFFIX}
     command: start-single-node --insecure
     ports:
-      - "${COCKROACH_PORT}:${COCKROACH_PORT}"
+      - "${COCKROACH_PORT}:26257"
     volumes:
     - cockroach-data:/cockroach/cockroach-data
 
@@ -86,7 +86,7 @@ services:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: bookings
     ports:
-      - "${MARIADB_PORT}:${MARIADB_PORT}"
+      - "${MARIADB_PORT}:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "--host=127.0.0.1", "--user=root", "--password=password"]
       interval: 10s
