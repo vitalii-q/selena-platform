@@ -1,0 +1,32 @@
+version: "3.8"
+
+# запуск dev версии:
+# docker compose -f docker-compose.yml -f docker-compose.override.yml up --build
+#
+# или запуск отдельного dev контейнера 
+# docker compose -f docker-compose.yml -f docker-compose.override.yml up --build bookings-service
+
+services:
+  bookings-service:
+    container_name: bookings-service_${PROJECT_SUFFIX}
+    image: ghcr.io/vitalii-q/selena/bookings-service:latest
+    build:
+      context: ./bookings-service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./bookings-service:/app # монтируем файлы в режиме runtime
+      - ~/.m2:/root/.m2  # Кеш Maven, чтобы не качать заново зависимости
+    ports:
+      - "${BOOKINGS_SERVICE_PORT}:${BOOKINGS_SERVICE_PORT}"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://localhost:9266/bookings  # передаем переменные в контейнер
+      - SPRING_DATASOURCE_USERNAME=${BOOKINGS_MARIADB_USER}           # передаем переменные в контейнер
+      - SPRING_DATASOURCE_PASSWORD=${BOOKINGS_MARIADB_PASSWORD}       # передаем переменные в контейнер
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      - maria-db
+    #command: ["./mvnw", "spring-boot:run"]
+    command: ["wait-for-mariadb.sh", "mariadb:3306", "--", "java", "-jar", "/app/app.jar"]
+    networks:
+      - app_network
+
