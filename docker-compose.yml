@@ -52,6 +52,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mariadb:3306/bookings
       - SPRING_DATASOURCE_USERNAME=${BOOKINGS_MARIADB_USER}
       - SPRING_DATASOURCE_PASSWORD=${BOOKINGS_MARIADB_PASSWORD}
+      - SPRING_PROFILES_ACTIVE=prod
     depends_on:
       - maria-db
     command: ["wait-for-mariadb.sh", "mariadb:3306", "--", "java", "-jar", "/app/app.jar"]
