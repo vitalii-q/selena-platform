@@ -7,4 +7,4 @@ until mysql -h mariadb -u root -ppassword -e "SELECT 1"; do
 done
 
 # После того как база данных доступна, запускаем Spring Boot приложение
-java -jar /path/to/your/bookings-service.jar
+java -jar /app.jar
