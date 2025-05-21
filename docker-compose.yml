@@ -1,13 +1,19 @@
 version: "3.8"
 # link http://localhost:9064/
 
+# Сборка prod версии
+# docker compose -f docker-compose.yml build
+# 
+# Запуск prod версии
+# docker compose -f docker-compose.yml up -d
+
 services:      
   hotels-service:
     container_name: hotels-service_${PROJECT_SUFFIX}
     image: ghcr.io/vitalii-q/selena/hotels-service:latest
     build: 
       context: ./hotels-service
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     ports:
       - "${HOTELS_SERVICE_PORT}:${HOTELS_SERVICE_PORT}"
     depends_on:
@@ -45,7 +51,7 @@ services:
     image: ghcr.io/vitalii-q/selena/bookings-service:latest
     build:
       context: ./bookings-service
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     ports:
       - "${BOOKINGS_SERVICE_PORT}:${BOOKINGS_SERVICE_PORT}"
     environment:
