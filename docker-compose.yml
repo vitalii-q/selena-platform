@@ -49,10 +49,10 @@ services:
     ports:
       - "${BOOKINGS_SERVICE_PORT}:${BOOKINGS_SERVICE_PORT}"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mariadb:3306/bookings
+      - SPRING_DATASOURCE_URL=${BOOKINGS_DATASOURCE_URL}  
       - SPRING_DATASOURCE_USERNAME=${BOOKINGS_MARIADB_USER}
       - SPRING_DATASOURCE_PASSWORD=${BOOKINGS_MARIADB_PASSWORD}
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=${PROJECT_SUFFIX}
     depends_on:
       - maria-db
     command: ["wait-for-mariadb.sh", "mariadb:3306", "--", "java", "-jar", "/app/app.jar"]
