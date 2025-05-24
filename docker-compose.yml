@@ -11,17 +11,26 @@ services:
   hotels-service:
     container_name: hotels-service_${PROJECT_SUFFIX}
     image: ghcr.io/vitalii-q/selena/hotels-service:latest
+    platform: linux/amd64
     build: 
       context: ./hotels-service
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
+    environment:
+      - HOTELS_COCKROACH_USER=${HOTELS_COCKROACH_USER}
+      - HOTELS_COCKROACH_PASSWORD=${HOTELS_COCKROACH_PASSWORD}
+      - HOTELS_COCKROACH_DB_NAME=${HOTELS_COCKROACH_DB_NAME}
+      - HOTELS_COCKROACH_HOST=${HOTELS_COCKROACH_HOST}
+      - HOTELS_COCKROACH_PORT=${HOTELS_COCKROACH_PORT}
     ports:
       - "${HOTELS_SERVICE_PORT}:${HOTELS_SERVICE_PORT}"
     depends_on:
-      - cockroach-db
+      - hotels-db
       - redis
     env_file:
       - .env
       - ./hotels-service/.env
+    networks:
+    - app_network
 
   users-service:
     container_name: users-service_${PROJECT_SUFFIX}
@@ -65,14 +74,16 @@ services:
     networks:
       - app_network
 
-  cockroach-db:
+  hotels-db:
     image: cockroachdb/cockroach:v22.2.7
-    container_name: cockroach-db_${PROJECT_SUFFIX}
+    container_name: hotels-db_${PROJECT_SUFFIX}
     command: start-single-node --insecure
     ports:
-      - "${COCKROACH_PORT}:26257"
+      - "${HOTELS_COCKROACH_PORT}:26257"
     volumes:
-    - cockroach-data:/cockroach/cockroach-data
+    - hotels-data:/cockroach/cockroach-data
+    networks:
+    - app_network
 
   postgres:
     image: postgres:13
@@ -229,7 +240,7 @@ services:
     command: ["kong", "start"]
 
 volumes:
-  cockroach-data: {}
+  hotels-data: {}
   redis-data: {}
   postgres-data: {}
   mariadb-data: {}
