@@ -23,6 +23,8 @@ services:
       - HOTELS_COCKROACH_PORT=${HOTELS_COCKROACH_PORT}
     ports:
       - "${HOTELS_SERVICE_PORT}:${HOTELS_SERVICE_PORT}"
+    volumes:
+      - ./hotels-service:/app # перезаписывает файлы при старте контейнере
     depends_on:
       - hotels-db
       - redis
