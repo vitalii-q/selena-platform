@@ -15,12 +15,6 @@ services:
     build: 
       context: ./hotels-service
       dockerfile: Dockerfile
-    #environment:
-    #  - HOTELS_COCKROACH_USER=${HOTELS_COCKROACH_USER}
-    #  - HOTELS_COCKROACH_PASSWORD=${HOTELS_COCKROACH_PASSWORD}
-    #  - HOTELS_COCKROACH_DB_NAME=${HOTELS_COCKROACH_DB_NAME}
-    #  - HOTELS_COCKROACH_HOST=${HOTELS_COCKROACH_HOST}
-    #  - HOTELS_COCKROACH_PORT=${HOTELS_COCKROACH_PORT}
     ports:
       - "${HOTELS_SERVICE_PORT}:${HOTELS_SERVICE_PORT}"
     volumes:
@@ -43,7 +37,7 @@ services:
       context: ./users-service
       dockerfile: Dockerfile
     ports:
-      - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
+      - "${USERS_SERVICE_PORT}:${USERS_SERVICE_PORT}"
     depends_on:
       - users-db
       - users-redis
