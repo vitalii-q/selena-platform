@@ -28,7 +28,7 @@ services:
       - ./secure/certs:/certs
     depends_on:
       - hotels-db
-      - redis
+      - hotels-redis
     env_file:
       - .env
       - ./hotels-service/.env
@@ -44,11 +44,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
-    networks:
-      - app_network
     depends_on:
-      - postgres
-      - redis
+      - users-db
+      - users-redis
     env_file:
       - .env
       - ./users-service/.env
@@ -56,7 +54,10 @@ services:
       - ./users-service:/app/users-service
       - /app/users-service/bin
       - /app/users-service/tmp
-    command: air -c .air.toml  # Запускаем air в контейнере для горячей перезагрузки
+    networks:
+      - app_network
+    entrypoint: ["/app/users-service/_docker/entrypoint.sh"]
+    #command: air -c .air.toml  # Запускаем air в контейнере для горячей перезагрузки
 
   bookings-service:
     container_name: bookings-service_${PROJECT_SUFFIX}
@@ -93,15 +94,15 @@ services:
     networks:
       - app_network
 
-  postgres:
+  users-db:
     image: postgres:13
-    container_name: postgres_${PROJECT_SUFFIX}
+    container_name: users-db_${PROJECT_SUFFIX}
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_NAME}
+      POSTGRES_USER: ${USERS_POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${USERS_POSTGRES_DB_PASS}
+      POSTGRES_DB: ${USERS_POSTGRES_DB_NAME}
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${USERS_POSTGRES_DB_PORT}:${USERS_POSTGRES_DB_PORT_INNER}"
     networks:
       - app_network
     volumes:
@@ -127,11 +128,19 @@ services:
     - mariadb-data:/var/lib/mysql
     - ./bookings-service/_docker/db:/docker-entrypoint-initdb.d
 
-  redis:
+  users-redis:
     image: redis:7
-    container_name: redis_${PROJECT_SUFFIX}
+    container_name: users-redis_${PROJECT_SUFFIX}
     ports:
-      - "${REDIS_PORT}:${REDIS_PORT}"
+      - "${USERS_REDIS_PORT}:${USERS_REDIS_PORT}"
+    volumes:
+      - redis-data:/data
+
+  hotels-redis:
+    image: redis:7
+    container_name: hotels-redis_${PROJECT_SUFFIX}
+    ports:
+      - "${HOTELS_REDIS_PORT}:${HOTELS_REDIS_PORT}"
     volumes:
       - redis-data:/data
 
