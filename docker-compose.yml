@@ -7,7 +7,7 @@ version: "3.8"
 # Запуск prod версии
 # docker compose -f docker-compose.yml up -d
 
-services:      
+services:
   hotels-service:
     container_name: hotels-service_${PROJECT_SUFFIX}
     image: ghcr.io/vitalii-q/selena/hotels-service:latest
@@ -15,16 +15,17 @@ services:
     build: 
       context: ./hotels-service
       dockerfile: Dockerfile
-    environment:
-      - HOTELS_COCKROACH_USER=${HOTELS_COCKROACH_USER}
-      - HOTELS_COCKROACH_PASSWORD=${HOTELS_COCKROACH_PASSWORD}
-      - HOTELS_COCKROACH_DB_NAME=${HOTELS_COCKROACH_DB_NAME}
-      - HOTELS_COCKROACH_HOST=${HOTELS_COCKROACH_HOST}
-      - HOTELS_COCKROACH_PORT=${HOTELS_COCKROACH_PORT}
+    #environment:
+    #  - HOTELS_COCKROACH_USER=${HOTELS_COCKROACH_USER}
+    #  - HOTELS_COCKROACH_PASSWORD=${HOTELS_COCKROACH_PASSWORD}
+    #  - HOTELS_COCKROACH_DB_NAME=${HOTELS_COCKROACH_DB_NAME}
+    #  - HOTELS_COCKROACH_HOST=${HOTELS_COCKROACH_HOST}
+    #  - HOTELS_COCKROACH_PORT=${HOTELS_COCKROACH_PORT}
     ports:
       - "${HOTELS_SERVICE_PORT}:${HOTELS_SERVICE_PORT}"
     volumes:
       - ./hotels-service:/app # перезаписывает файлы при старте контейнере
+      - ./secure/certs:/certs
     depends_on:
       - hotels-db
       - redis
@@ -79,13 +80,18 @@ services:
   hotels-db:
     image: cockroachdb/cockroach:v22.2.7
     container_name: hotels-db_${PROJECT_SUFFIX}
-    command: start-single-node --insecure
+    command: >
+      start-single-node
+      --certs-dir=/certs
+      --http-addr=0.0.0.0:8080
+      --sql-addr=0.0.0.0:26258
     ports:
-      - "${HOTELS_COCKROACH_PORT}:26257"
+      - "${HOTELS_COCKROACH_PORT}:26258"
     volumes:
-    - hotels-data:/cockroach/cockroach-data
+      - hotels-data:/cockroach/cockroach-data
+      - ./secure/certs:/certs
     networks:
-    - app_network
+      - app_network
 
   postgres:
     image: postgres:13

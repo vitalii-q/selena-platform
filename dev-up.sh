@@ -4,7 +4,7 @@ set -e
 SERVICE=$1
 
 # Microservice validation
-VALID_SERVICES=("hotels-service" "users-service" "bookings-service")
+VALID_SERVICES=("hotels-service" "users-service" "bookings-service") # "hotels-db"
 if [ -n "$SERVICE" ] && [[ ! " ${VALID_SERVICES[@]} " =~ " ${SERVICE} " ]]; then
   echo "❌ Unknown service: $SERVICE"
   echo "Valid services: ${VALID_SERVICES[*]}"
