@@ -109,12 +109,12 @@ services:
     image: mariadb:10.11
     container_name: bookings-db_${PROJECT_SUFFIX}
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: bookings
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASS}
+      MYSQL_DATABASE: ${BOOKINGS_MARIA_DB_NAME}
     ports:
       - "${BOOKINGS_MARIA_DB_PORT}:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "--host=127.0.0.1", "--user=root", "--password=password"]
+      test: ["CMD", "mysqladmin", "ping", "--host=${LOCALHOST}", "--user=${ROOT_USER}", "--password=${ROOT_PASS}"]
       interval: 10s
       retries: 5
       start_period: 30s

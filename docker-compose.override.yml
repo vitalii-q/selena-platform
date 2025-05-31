@@ -22,8 +22,7 @@ services:
       - SPRING_PROFILES_ACTIVE=${PROJECT_SUFFIX}
     depends_on:
       - bookings-db
-    #command: ["./_docker/wait-for-mariadb.sh", "mariadb:3306", "--", "./mvnw", "spring-boot:run", "-Dspring-boot.run.profiles=dev"]
-    command: ["./_docker/entrypoint.sh", "--", "./mvnw", "spring-boot:run", "-Dspring-boot.run.profiles=dev"]
+    command: ["./_docker/entrypoint.sh", "./mvnw", "spring-boot:run", "-Dspring-boot.run.profiles=dev"]
     env_file:
       - .env
       - ./bookings-service/.env
