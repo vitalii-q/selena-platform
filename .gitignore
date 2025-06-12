@@ -36,6 +36,7 @@ users-service/
 payments-service/
 notifications-service/
 api-gateway/
+terraform/
 
 /secure
 
