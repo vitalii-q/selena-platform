@@ -1,2 +1,2 @@
 #!/bin/bash
-a2a2qwaa1
+a2a2qwa
