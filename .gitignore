@@ -36,8 +36,19 @@ users-service/
 payments-service/
 notifications-service/
 api-gateway/
-terraform/
 
 /secure
 
 /k8s
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.crash
+.terraform/
+.terraform.lock.hcl
+*.backup
+*.log
+
+# AWS credentials
+~/.aws/ 
