@@ -1,9 +1,9 @@
 resource "aws_instance" "users_service" {
-  ami           = var.ami_id
+  ami           = data.aws_ami.amazon_linux_2023.id
   instance_type = var.instance_type
   subnet_id     = var.subnet_id
   vpc_security_group_ids = [aws_security_group.users_sg.id]
-  key_name      = var.selena-aws-key
+  key_name      = var.key_name
 
   tags = {
     Name = "users-service-instance"
@@ -34,5 +34,25 @@ resource "aws_security_group" "users_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+data "aws_ami" "amazon_linux_2023" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-*-x86_64"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }

@@ -1,5 +1,5 @@
 variable "ami_id" {
-  description = "AMI ID to use for the EC2 instance"
+  description = "AMI ID for EC2 instance"
   type        = string
 }
 
@@ -21,4 +21,22 @@ variable "vpc_id" {
 variable "key_name" {
   description = "SSH key pair name"
   type        = string
+}
+
+variable "project" {
+  description = "Project name"
+  type        = string
+  default     = "selena"
+}
+
+variable "env" {
+  description = "Deployment environment"
+  type        = string
+  default     = "dev"
+}
+
+variable "region" {
+  description = "AWS region"
+  type        = string
+  default     = "eu-central-1"
 }

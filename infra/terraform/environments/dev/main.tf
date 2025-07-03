@@ -14,11 +14,11 @@ module "vpc" {
 
 module "ec2" {
   source        = "../../modules/ec2"
-  ami_id        = "ami-0c55b159cbfafe1f0"       # Ubuntu 22.04 LTS (eu-central-1)
+  ami_id        = "ami-00c8ac9147e19828e"       # Amazon Linux 2023 kernel-6.1 AMI
   instance_type = "t3.micro"
   subnet_id     = module.vpc.public_subnet_id
   vpc_id        = module.vpc.vpc_id
-  key_name      = var.selena-aws-key
+  key_name      = var.key_name
 }
 
 module "s3" {
