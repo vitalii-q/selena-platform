@@ -25,3 +25,32 @@ resource "aws_subnet" "private_subnet" {
     Name = "${var.project}-private-subnet"
   }
 }
+
+# Internet Gateway для доступа EC2 в интернет
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "selena-igw"
+  }
+}
+
+# Route table для публичной подсети
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "${var.project}-public-rt" 
+  }
+}
+
+# Маршрут по умолчанию: весь трафик в интернет через IGW
+resource "aws_route" "default_route" {
+  route_table_id         = aws_route_table.public_rt.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.igw.id
+}
+
+# Привязка route table к public subnet
+resource "aws_route_table_association" "public_subnet_assoc" {
+  subnet_id      = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.public_rt.id
+}

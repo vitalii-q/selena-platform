@@ -4,6 +4,15 @@ resource "aws_instance" "users_service" {
   subnet_id     = var.subnet_id
   vpc_security_group_ids = [aws_security_group.users_sg.id]
   key_name      = var.key_name
+  associate_public_ip_address = true
+
+    user_data = <<-EOF
+                #!/bin/bash
+                yum update -y
+                yum install -y openssh-server
+                systemctl enable sshd
+                systemctl start sshd
+                EOF
 
   tags = {
     Name = "users-service-instance"
