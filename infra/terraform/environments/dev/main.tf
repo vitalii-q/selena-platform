@@ -27,14 +27,14 @@ module "s3" {
 }
 
 module "users_rds" {
-  source = "../../../modules/rds"
+  source = "../../modules/rds"
 
   db_identifier          = "users-db-${var.env}"
   instance_class         = "db.t3.micro"
   allocated_storage      = 20
   db_name                = "users_db"
   username               = "postgres"
-  password               = "your_secure_password"
+  password               = "postgres"
   port                   = 5432
   publicly_accessible    = true
   vpc_security_group_ids = [module.vpc.default_security_group_id]
