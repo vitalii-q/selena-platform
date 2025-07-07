@@ -57,10 +57,22 @@ resource "aws_route_table_association" "public_subnet_assoc" {
 
 resource "aws_db_subnet_group" "main" {
   name       = "${var.project}-db-subnet-group"
-  subnet_ids = [aws_subnet.private_subnet.id] # замени на свои private subnet id из модуля
+  subnet_ids = [
+    aws_subnet.private_subnet.id,
+    aws_subnet.private_subnet_2.id
+  ]
   description = "Subnet group for RDS"
 
   tags = {
     Name = "${var.project}-db-subnet-group"
+  }
+}
+
+resource "aws_subnet" "private_subnet_2" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidr_2
+  availability_zone = var.availability_zone_2
+  tags = {
+    Name = "${var.project}-private-subnet-2"
   }
 }

@@ -37,3 +37,33 @@ variable "project" {
   description = "Project name"
   type        = string
 }
+
+variable "availability_zone" {
+  description = "Primary availability zone"
+  type        = string
+}
+
+variable "availability_zone_2" {
+  description = "Secondary availability zone"
+  type        = string
+}
+
+variable "private_subnet_cidr" {
+  description = "CIDR block for primary private subnet"
+  type        = string
+}
+
+variable "private_subnet_cidr_2" {
+  description = "CIDR block for secondary private subnet"
+  type        = string
+}
+
+variable "public_subnet_cidr" {
+  description = "CIDR block for public subnet"
+  type        = string
+}
+
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+}

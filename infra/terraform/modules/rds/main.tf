@@ -1,7 +1,7 @@
 resource "aws_db_instance" "users_postgres" {
   identifier              = var.db_identifier
   engine                  = "postgres"
-  engine_version          = "15.3"
+  engine_version          = "15.13"
   instance_class          = var.instance_class
   allocated_storage       = var.allocated_storage
   db_name                 = var.db_name
