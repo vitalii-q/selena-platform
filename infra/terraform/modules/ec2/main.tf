@@ -1,3 +1,7 @@
+# -----------------------
+# USERS-SERVICE
+# -----------------------
+
 resource "aws_instance" "users_service" {
   ami           = data.aws_ami.amazon_linux_2023.id
   instance_type = var.instance_type
@@ -5,6 +9,7 @@ resource "aws_instance" "users_service" {
   vpc_security_group_ids = [aws_security_group.users_sg.id]
   key_name      = var.key_name
   associate_public_ip_address = true
+  iam_instance_profile        = var.iam_instance_profile
 
     user_data = <<-EOF
                 #!/bin/bash
