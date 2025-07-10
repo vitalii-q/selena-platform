@@ -43,6 +43,14 @@ resource "aws_security_group" "users_sg" {
     cidr_blocks = ["0.0.0.0/0"]  # порт users-service
   }
 
+  ingress {
+    from_port   = 9065
+    to_port     = 9065
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow users-service access on port 9065"
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
