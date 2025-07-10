@@ -20,7 +20,7 @@ resource "aws_iam_policy" "terraform_admin_policy" {
 }
 
 resource "aws_iam_user" "terraform_user" {
-  name = "terraform"
+  name = "terraform-user"
 }
 
 resource "aws_iam_user_policy_attachment" "attach_policy" {
