@@ -73,5 +73,4 @@ data "aws_ami" "amazon_linux_2023" {
 
 resource "aws_eip" "this" {
   instance = aws_instance.users_service.id
-  vpc      = true
 }

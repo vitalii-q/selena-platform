@@ -43,14 +43,3 @@ resource "aws_iam_role" "cloudwatch_agent_role" {
   })
 }
 
-# Привязываем политику к роли
-resource "aws_iam_role_policy_attachment" "cloudwatch_agent_attach" {
-  role       = aws_iam_role.cloudwatch_agent_role.name
-  policy_arn = aws_iam_policy.cloudwatch_agent_policy.arn
-}
-
-# Instance Profile для EC2
-resource "aws_iam_instance_profile" "cloudwatch_agent_instance_profile" {
-  name = "CloudWatchAgentInstanceProfile"
-  role = aws_iam_role.cloudwatch_agent_role.name
-}
