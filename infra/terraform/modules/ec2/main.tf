@@ -13,10 +13,57 @@ resource "aws_instance" "users_service" {
 
     user_data = <<-EOF
                 #!/bin/bash
+
+                # Лог в файл для отладки
+                exec > /var/log/user-data.log 2>&1
+
+                # Обновление системы
                 yum update -y
                 yum install -y openssh-server
                 systemctl enable sshd
                 systemctl start sshd
+
+                # Установка Docker, если не установлен
+                if ! command -v docker &> /dev/null; then
+                  amazon-linux-extras enable docker
+                  yum install -y docker
+                  systemctl start docker
+                  systemctl enable docker
+                fi
+
+                # Установка Git, если не установлен
+                if ! command -v git &> /dev/null; then
+                  yum install -y git
+                fi
+
+                # Добавить ec2-user в группу docker
+                usermod -aG docker ec2-user
+
+                # Клонируем репозиторий, если не существует
+                if [ ! -d "/home/ec2-user/selena-users-service" ]; then
+                  git clone https://github.com/vitalii-q/selena-users-service.git /home/ec2-user/selena-users-service
+                fi
+
+                cd /home/ec2-user/selena-users-service
+
+                # Собираем образ (если ещё нет)
+                if ! docker image inspect selena-users-service:latest > /dev/null 2>&1; then
+                  docker build -t selena-users-service .
+                fi
+
+                # Останавливаем старый контейнер, если он есть
+                if docker ps -a --format '{{.Names}}' | grep -q '^selena-users-service$'; then
+                  docker stop selena-users-service
+                  docker rm selena-users-service
+                fi
+
+                # Запускаем контейнер
+                docker run -d \
+                --name selena-users-service \
+                --env-file .env \
+                -p 9065:9065 \
+                selena-users-service:latest
+                
                 EOF
 
   tags = {
@@ -34,13 +81,6 @@ resource "aws_security_group" "users_sg" {
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]  # SSH доступ — ограничим позже
-  }
-
-  ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # порт users-service
   }
 
   ingress {
