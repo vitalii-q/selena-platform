@@ -3,13 +3,18 @@
 # -----------------------
 
 resource "aws_instance" "users_service" {
-  ami           = data.aws_ami.amazon_linux_2023.id
+  ami           = var.ami_id
   instance_type = var.instance_type
   subnet_id     = var.subnet_id
   vpc_security_group_ids = [aws_security_group.users_sg.id]
   key_name      = var.key_name
   associate_public_ip_address = true
   iam_instance_profile        = var.iam_instance_profile
+
+  root_block_device {
+    volume_size = 10
+    volume_type = "gp3"
+  }
 
     user_data = <<-EOF
                 #!/bin/bash
@@ -19,37 +24,34 @@ resource "aws_instance" "users_service" {
 
                 # Обновление системы
                 yum update -y
-                yum install -y openssh-server
-                systemctl enable sshd
-                systemctl start sshd
 
-                # Установка Docker, если не установлен
-                if ! command -v docker &> /dev/null; then
-                  amazon-linux-extras enable docker
-                  yum install -y docker
-                  systemctl start docker
-                  systemctl enable docker
-                fi
-
-                # Установка Git, если не установлен
-                if ! command -v git &> /dev/null; then
-                  yum install -y git
-                fi
+                # Установка Docker
+                amazon-linux-extras enable docker
+                yum install -y docker git
+                systemctl start docker
+                systemctl enable docker
 
                 # Добавить ec2-user в группу docker
                 usermod -aG docker ec2-user
 
                 # Клонируем репозиторий, если не существует
+                cd /home/ec2-user
                 if [ ! -d "/home/ec2-user/selena-users-service" ]; then
-                  git clone https://github.com/vitalii-q/selena-users-service.git /home/ec2-user/selena-users-service
+                  git clone https://github.com/vitalii-q/selena-users-service.git
+                  chown -R ec2-user:ec2-user selena-users-service   # установить права
+
+                  # Копируем .env из другого места, если нужно
+                  cp /home/ec2-user/.env selena-users-service/.env
+                else
+                  cd selena-users-service
+                  sudo -u ec2-user git pull                       # обновить код
+                  cd ..
                 fi
 
                 cd /home/ec2-user/selena-users-service
 
-                # Собираем образ (если ещё нет)
-                if ! docker image inspect selena-users-service:latest > /dev/null 2>&1; then
-                  docker build -t selena-users-service .
-                fi
+                # Собираем образ всегда
+                sudo -u ec2-user docker build -t selena-users-service .
 
                 # Останавливаем старый контейнер, если он есть
                 if docker ps -a --format '{{.Names}}' | grep -q '^selena-users-service$'; then
@@ -58,11 +60,11 @@ resource "aws_instance" "users_service" {
                 fi
 
                 # Запускаем контейнер
-                docker run -d \
-                --name selena-users-service \
-                --env-file .env \
-                -p 9065:9065 \
-                selena-users-service:latest
+                sudo -u ec2-user docker run -d \
+                  --name selena-users-service \
+                  --env-file /home/ec2-user/selena-users-service/.env \   # полный путь к .env
+                  -p 9065:9065 \
+                  selena-users-service:latest
                 
                 EOF
 

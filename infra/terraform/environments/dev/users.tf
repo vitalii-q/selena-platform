@@ -13,7 +13,7 @@ module "vpc" {
 
 module "ec2" {
   source        = "../../modules/ec2"
-  ami_id        = "ami-00c8ac9147e19828e"       # Amazon Linux 2023 kernel-6.1 AMI
+  ami_id        = "ami-0381f7486a6b24f34"
   instance_type = "t3.micro"
   subnet_id     = module.vpc.public_subnet_id
   vpc_id        = module.vpc.vpc_id
