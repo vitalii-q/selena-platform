@@ -39,13 +39,19 @@ resource "aws_instance" "users_service" {
                 if [ ! -d "/home/ec2-user/selena-users-service" ]; then
                   git clone https://github.com/vitalii-q/selena-users-service.git
                   chown -R ec2-user:ec2-user selena-users-service   # установить права
-
-                  # Копируем .env из другого места, если нужно
-                  cp /home/ec2-user/.env selena-users-service/.env
                 else
                   cd selena-users-service
                   sudo -u ec2-user git pull                       # обновить код
                   cd ..
+                fi
+
+                # Проверяем и скачиваем .env
+                if [ ! -f /home/ec2-user/selena-users-service/.env ]; then
+                  echo ".env не найден, скачиваем из S3..."
+                  aws s3 cp s3://selena-configs/.env /home/ec2-user/selena-users-service/.env
+                  chown ec2-user:ec2-user /home/ec2-user/selena-users-service/.env
+                else
+                  echo ".env уже существует"
                 fi
 
                 cd /home/ec2-user/selena-users-service

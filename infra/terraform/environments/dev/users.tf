@@ -21,11 +21,6 @@ module "ec2" {
   iam_instance_profile = aws_iam_instance_profile.cloudwatch_agent_instance_profile.name
 }
 
-module "s3" {
-  source = "../../modules/s3"
-  # параметры для модуля S3
-}
-
 module "users_rds" {
   source = "../../modules/rds"
 
@@ -40,4 +35,13 @@ module "users_rds" {
   vpc_security_group_ids = [module.vpc.default_security_group_id]
   db_subnet_group_name   = module.vpc.db_subnet_group
   env                    = var.env
+}
+
+module "users_service_s3" {
+  source      = "../../modules/s3"
+  bucket_name = "selena-users-service-env-${var.environment}"
+  tags = {
+    Name = "users-service-env"
+    Environment = var.environment
+  }
 }
