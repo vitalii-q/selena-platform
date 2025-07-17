@@ -131,11 +131,12 @@ data "aws_ami" "amazon_linux_2023" {
 }
 
 resource "aws_eip" "this" {
+  count    = 1
   instance = aws_instance.users_service[0].id
 
-    depends_on = [
-      aws_instance.users_service[0]
-    ]
+  depends_on = [
+    aws_instance.users_service[0]
+  ]
 
   lifecycle {
     prevent_destroy = true
