@@ -3,6 +3,7 @@
 # -----------------------
 
 resource "aws_instance" "users_service" {
+  count         = 2
   ami           = var.ami_id
   instance_type = var.instance_type
   subnet_id     = var.subnet_id
@@ -48,7 +49,7 @@ resource "aws_instance" "users_service" {
                 # Проверяем и скачиваем .env
                 if [ ! -f /home/ec2-user/selena-users-service/.env ]; then
                   echo ".env не найден, скачиваем из S3..."
-                  aws s3 cp s3://selena-configs/.env /home/ec2-user/selena-users-service/.env
+                  aws s3 cp s3://selena-users-service-env-dev/.env /home/ec2-user/selena-users-service/.env
                   chown ec2-user:ec2-user /home/ec2-user/selena-users-service/.env
                 else
                   echo ".env уже существует"
@@ -67,10 +68,12 @@ resource "aws_instance" "users_service" {
 
                 # Запускаем контейнер
                 sudo -u ec2-user docker run -d \
-                  --name selena-users-service \
-                  --env-file /home/ec2-user/selena-users-service/.env \   # полный путь к .env
-                  -p 9065:9065 \
-                  selena-users-service:latest
+                --name selena-users-service \
+                --env-file /home/ec2-user/selena-users-service/.env \
+                -p 9065:9065 \
+                --restart always \
+                selena-users-service:latest
+
                 
                 EOF
 
@@ -128,5 +131,9 @@ data "aws_ami" "amazon_linux_2023" {
 }
 
 resource "aws_eip" "this" {
-  instance = aws_instance.users_service.id
+  instance = aws_instance.users_service[0].id
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }

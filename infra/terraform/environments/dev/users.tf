@@ -45,3 +45,11 @@ module "users_service_s3" {
     Environment = var.environment
   }
 }
+
+module "iam_ec2_permissions" {
+  source = "../../modules/iam"
+
+  user_name = "terraform-user"
+}
+
+
