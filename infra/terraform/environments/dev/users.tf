@@ -46,10 +46,8 @@ module "users_service_s3" {
   }
 }
 
-module "iam_ec2_permissions" {
+module "iam" {
   source = "../../modules/iam"
-
   user_name = "terraform-user"
 }
-
 

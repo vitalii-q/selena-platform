@@ -23,3 +23,7 @@ output "users_service_s3_bucket" {
   value = module.users_service_s3.bucket_name
 }
 
+output "ec2_s3_access_profile_name" {
+  value = module.iam.ec2_s3_access_profile_name
+}
+

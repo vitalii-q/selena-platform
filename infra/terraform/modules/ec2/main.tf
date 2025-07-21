@@ -12,6 +12,7 @@ resource "aws_instance" "users_service" {
   associate_public_ip_address = true
   iam_instance_profile        = var.iam_instance_profile
 
+
   root_block_device {
     volume_size = 10
     volume_type = "gp3"
