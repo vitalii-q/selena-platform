@@ -27,6 +27,12 @@ resource "aws_instance" "users_service" {
                 # Обновление системы
                 yum update -y
 
+                # Скачиваем env-файл из S3
+                aws s3 cp s3://selena-users-service-env-dev/.env /home/ec2-user/.env
+
+                # Права на файл (если нужно)
+                chmod 600 /home/ec2-user/.env
+
                 # Установка Docker
                 amazon-linux-extras enable docker
                 yum install -y docker git
