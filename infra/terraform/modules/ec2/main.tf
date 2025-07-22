@@ -27,13 +27,7 @@ resource "aws_instance" "users_service" {
                 # Обновление системы
                 yum update -y
 
-                # Скачиваем env-файл из S3
-                aws s3 cp s3://selena-users-service-env-dev/.env /home/ec2-user/.env
-
-                # Права на файл (если нужно)
-                chmod 600 /home/ec2-user/.env
-
-                # Установка Docker
+                # Установка Docker и git
                 amazon-linux-extras enable docker
                 yum install -y docker git
                 systemctl start docker
@@ -42,29 +36,38 @@ resource "aws_instance" "users_service" {
                 # Добавить ec2-user в группу docker
                 usermod -aG docker ec2-user
 
-                # Клонируем репозиторий, если не существует
                 cd /home/ec2-user
-                if [ ! -d "/home/ec2-user/selena-users-service" ]; then
+
+                # Клонируем репозиторий, если не существует, иначе обновляем
+                if [ ! -d "selena-users-service" ]; then
                   git clone https://github.com/vitalii-q/selena-users-service.git
-                  chown -R ec2-user:ec2-user selena-users-service   # установить права
+                  chown -R ec2-user:ec2-user selena-users-service
                 else
                   cd selena-users-service
-                  sudo -u ec2-user git pull                       # обновить код
+                  sudo -u ec2-user git pull
                   cd ..
                 fi
 
-                # Проверяем и скачиваем .env
-                if [ ! -f /home/ec2-user/selena-users-service/.env ]; then
+                # Установка AWS CLI
+                yum install -y unzip curl
+                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                unzip awscliv2.zip
+                sudo ./aws/install
+
+                # Проверяем наличие .env в репозитории и скачиваем из S3 при отсутствии
+                if [ ! -f selena-users-service/.env ]; then
                   echo ".env не найден, скачиваем из S3..."
-                  aws s3 cp s3://selena-users-service-env-dev/.env /home/ec2-user/selena-users-service/.env
-                  chown ec2-user:ec2-user /home/ec2-user/selena-users-service/.env
+                  aws s3 cp s3://selena-users-service-env-dev/.env selena-users-service/.env
+                  chown ec2-user:ec2-user selena-users-service/.env
                 else
                   echo ".env уже существует"
                 fi
 
-                cd /home/ec2-user/selena-users-service
+                chmod 600 selena-users-service/.env
 
-                # Собираем образ всегда
+                cd selena-users-service
+
+                # Собираем docker-образ
                 sudo -u ec2-user docker build -t selena-users-service .
 
                 # Останавливаем старый контейнер, если он есть
@@ -73,13 +76,14 @@ resource "aws_instance" "users_service" {
                   docker rm selena-users-service
                 fi
 
-                # Запускаем контейнер
+                # Запускаем контейнер с использованием .env файла
                 sudo -u ec2-user docker run -d \
-                --name selena-users-service \
-                --env-file /home/ec2-user/selena-users-service/.env \
-                -p 9065:9065 \
-                --restart always \
-                selena-users-service:latest
+                  --name selena-users-service \
+                  --env-file /home/ec2-user/selena-users-service/.env \
+                  -p 9065:9065 \
+                  --restart always \
+                  selena-users-service:latest
+
 
                 
                 EOF
