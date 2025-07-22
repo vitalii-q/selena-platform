@@ -45,3 +45,8 @@ variable "iam_instance_profile" {
   description = "IAM instance profile for EC2"
   type        = string
 }
+
+variable "selena_ec2_instance_profile" {
+  description = "Instance profile for Selena EC2 instances"
+  type        = string
+}

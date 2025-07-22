@@ -18,7 +18,8 @@ module "ec2" {
   subnet_id     = module.vpc.public_subnet_id
   vpc_id        = module.vpc.vpc_id
   key_name      = var.key_name
-  iam_instance_profile = aws_iam_instance_profile.cloudwatch_agent_instance_profile.name
+  iam_instance_profile        = aws_iam_instance_profile.cloudwatch_agent_instance_profile.name
+  selena_ec2_instance_profile = module.iam.selena_ec2_profile_name
 }
 
 module "users_rds" {

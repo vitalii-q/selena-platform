@@ -10,7 +10,7 @@ resource "aws_instance" "users_service" {
   vpc_security_group_ids = [aws_security_group.users_sg.id]
   key_name      = var.key_name
   associate_public_ip_address = true
-  iam_instance_profile        = var.iam_instance_profile
+  iam_instance_profile        = var.selena_ec2_instance_profile
 
 
   root_block_device {
