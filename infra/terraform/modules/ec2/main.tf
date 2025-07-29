@@ -24,7 +24,7 @@ resource "aws_instance" "users_service" {
                 # Лог в файл для отладки
                 exec > /var/log/user-data.log 2>&1
 
-                # Обновление системыф
+                # Обновление системы
                 yum update -y
 
                 # Установка Docker и git
