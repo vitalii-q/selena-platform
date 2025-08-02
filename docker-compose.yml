@@ -71,7 +71,7 @@ services:
     command: ["entrypoint.sh", "--", "java", "-jar", "/app/app.jar"]
     env_file:
       - .env
-      - ./hotels-service/.env
+      - ./bookings-service/.env
     networks:
       - app_network
 
