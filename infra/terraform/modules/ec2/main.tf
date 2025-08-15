@@ -3,7 +3,7 @@
 # -----------------------
 
 resource "aws_instance" "users_service" {
-  count         = 2
+  count         = 1
   ami           = var.ami_id
   instance_type = var.instance_type
   subnet_id     = var.subnet_id
