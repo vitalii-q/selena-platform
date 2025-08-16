@@ -60,4 +60,7 @@ module "cloudwatch" {
   project    = var.project
   region     = var.region
   # и т.д. – смотри, какие переменные у тебя в cloudwatch/variables.tf
+
+  selena_ec2_instance_profile = aws_iam_instance_profile.cloudwatch_agent_profile.name
 }
+

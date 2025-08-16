@@ -9,5 +9,6 @@ variable "notification_email" {
 }
 
 variable "selena_ec2_instance_profile" {
-  default = aws_iam_instance_profile.cloudwatch_agent_profile.name
+  description = "IAM Instance Profile для EC2 с CloudWatch Agent"
+  type        = string
 }
