@@ -84,7 +84,34 @@ resource "aws_instance" "users_service" {
                   --restart always \
                   selena-users-service:latest
 
+                # Установка CloudWatch Agent
+                yum install -y amazon-cloudwatch-agent
 
+                # Конфиг для CloudWatch Agent
+                cat <<CWA > /opt/aws/amazon-cloudwatch-agent/bin/config.json
+                {
+                  "agent": {
+                    "metrics_collection_interval": 60
+                  },
+                  "metrics": {
+                    "namespace": "UsersService",
+                    "metrics_collected": {
+                      "cpu": {
+                        "measurement": [
+                          {"name": "cpu_usage_idle", "rename": "CPUIdle", "unit": "Percent"},
+                          {"name": "cpu_usage_user", "rename": "CPUUser", "unit": "Percent"},
+                          {"name": "cpu_usage_system", "rename": "CPUSystem", "unit": "Percent"}
+                        ],
+                        "totalcpu": true
+                      }
+                    }
+                  }
+                }
+                CWA
+
+                                # Запуск CloudWatch Agent
+                /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+                  -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
                 
                 EOF
 
@@ -153,3 +180,4 @@ resource "aws_eip" "this" {
     prevent_destroy = true
   }
 }
+

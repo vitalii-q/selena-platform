@@ -18,7 +18,7 @@ module "ec2" {
   subnet_id     = module.vpc.public_subnet_id
   vpc_id        = module.vpc.vpc_id
   key_name      = var.key_name
-  iam_instance_profile        = aws_iam_instance_profile.cloudwatch_agent_instance_profile.name
+  iam_instance_profile        = module.iam.cloudwatch_agent_profile_name
   selena_ec2_instance_profile = module.iam.selena_ec2_profile_name
 }
 
@@ -55,12 +55,29 @@ module "iam" {
 module "cloudwatch" {
   source = "../../modules/cloudwatch"
 
-  # если нужны переменные, прокидываем их сюда
-  env        = var.environment
-  project    = var.project
-  region     = var.region
-  # и т.д. – смотри, какие переменные у тебя в cloudwatch/variables.tf
-
-  selena_ec2_instance_profile = aws_iam_instance_profile.cloudwatch_agent_profile.name
+  ec2_instance_id             = module.ec2.instance_id
+  notification_email          = var.alert_email
+  selena_ec2_instance_profile = module.iam.cloudwatch_agent_profile_name
 }
 
+# Создаём IAM роль для EC2
+resource "aws_iam_role" "selena_ec2_role" {
+  name = "selena-ec2-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+  })
+}
+
+# Привязываем к роли CloudWatchAgentServerPolicy
+resource "aws_iam_role_policy_attachment" "selena_ec2_cloudwatch" {
+  role       = aws_iam_role.selena_ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}

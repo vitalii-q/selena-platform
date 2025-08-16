@@ -104,3 +104,15 @@ resource "aws_iam_instance_profile" "selena_ec2_profile" {
   name = "selena-ec2-profile"
   role = aws_iam_role.selena_ec2_role.name
 }
+
+# Создаём instance profile для EC2
+resource "aws_iam_instance_profile" "selena_ec2_instance_profile" {
+  name = "selena-ec2-instance-profile"
+  role = aws_iam_role.selena_ec2_role.name
+}
+
+# (если нужен профиль для CloudWatch Agent)
+resource "aws_iam_instance_profile" "cloudwatch_agent_instance_profile" {
+  name = "cloudwatch-agent-instance-profile"
+  role = aws_iam_role.selena_ec2_role.name
+}
