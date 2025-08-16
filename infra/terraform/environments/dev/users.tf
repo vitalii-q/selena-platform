@@ -52,3 +52,12 @@ module "iam" {
   user_name = "terraform-user"
 }
 
+module "cloudwatch" {
+  source = "../../modules/cloudwatch"
+
+  # если нужны переменные, прокидываем их сюда
+  env        = var.environment
+  project    = var.project
+  region     = var.region
+  # и т.д. – смотри, какие переменные у тебя в cloudwatch/variables.tf
+}
