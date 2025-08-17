@@ -3,12 +3,12 @@
 # -----------------------
 
 resource "aws_instance" "users_service" {
-  count         = 1
-  ami           = var.ami_id
-  instance_type = var.instance_type
-  subnet_id     = var.subnet_id
-  vpc_security_group_ids = [aws_security_group.users_sg.id]
-  key_name      = var.key_name
+  count                       = 1
+  ami                         = var.ami_id
+  instance_type               = var.instance_type
+  subnet_id                   = var.subnet_id
+  vpc_security_group_ids      = [aws_security_group.users_sg.id]
+  key_name                    = var.key_name
   associate_public_ip_address = true
   iam_instance_profile        = var.selena_ec2_instance_profile
 

@@ -7,5 +7,9 @@ output "selena_ec2_profile_name" {
 }
 
 output "cloudwatch_agent_profile_name" {
-  value = aws_iam_instance_profile.cloudwatch_agent_instance_profile.name
+  value = aws_iam_instance_profile.selena_ec2_instance_profile.name
+}
+
+output "selena_ec2_role_name" {
+  value = aws_iam_role.selena_ec2_role.name
 }

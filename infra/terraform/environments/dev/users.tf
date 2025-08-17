@@ -58,26 +58,5 @@ module "cloudwatch" {
   ec2_instance_id             = module.ec2.instance_id
   notification_email          = var.alert_email
   selena_ec2_instance_profile = module.iam.cloudwatch_agent_profile_name
-}
-
-# Создаём IAM роль для EC2
-resource "aws_iam_role" "selena_ec2_role" {
-  name = "selena-ec2-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      }
-    }]
-  })
-}
-
-# Привязываем к роли CloudWatchAgentServerPolicy
-resource "aws_iam_role_policy_attachment" "selena_ec2_cloudwatch" {
-  role       = aws_iam_role.selena_ec2_role.name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  selena_ec2_role_name        = module.iam.selena_ec2_role_name
 }
