@@ -85,7 +85,9 @@ resource "aws_instance" "users_service" {
                   selena-users-service:latest
 
                 # Установка CloudWatch Agent
-                yum install -y amazon-cloudwatch-agent
+                cd /tmp
+                curl -O https://amazoncloudwatch-agent.s3.amazonaws.com/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
+                dnf install -y ./amazon-cloudwatch-agent.rpm
 
                 # Конфиг для CloudWatch Agent
                 cat <<CWA > /opt/aws/amazon-cloudwatch-agent/bin/config.json
@@ -109,9 +111,14 @@ resource "aws_instance" "users_service" {
                 }
                 CWA
 
-                                # Запуск CloudWatch Agent
+                # Запуск CloudWatch Agent
                 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
-                  -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+                  -a fetch-config \
+                  -m ec2 \
+                  -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json \
+                  -s
+
+                systemctl status amazon-cloudwatch-agent --no-pager -l
                 
                 EOF
 
