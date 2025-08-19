@@ -19,5 +19,5 @@ resource "aws_cloudwatch_metric_alarm" "users_service_errors_alarm" {
   period              = 60
   statistic           = "Sum"
   threshold           = 0
-  alarm_actions       = [aws_sns_topic.alerts.arn] # сюда вставь свой SNS топик
+  alarm_actions       = [aws_sns_topic.alerts.arn]
 }
