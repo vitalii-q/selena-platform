@@ -59,7 +59,7 @@ module "cloudwatch" {
   notification_email          = var.alert_email
   selena_ec2_instance_profile = module.iam.cloudwatch_agent_profile_name
 
-  alerts_topic_arn = module.sns.alerts.arn
+  alerts_topic_arn = module.sns.alerts_topic_arn
 }
 
 module "sns" {
