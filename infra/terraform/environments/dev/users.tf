@@ -59,3 +59,8 @@ module "cloudwatch" {
   notification_email          = var.alert_email
   selena_ec2_instance_profile = module.iam.cloudwatch_agent_profile_name
 }
+
+module "sns" {
+  source      = "../../modules/sns"
+  alert_email = "vitaly@example.com"
+}
