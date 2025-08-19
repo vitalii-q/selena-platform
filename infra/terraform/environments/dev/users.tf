@@ -64,5 +64,5 @@ module "cloudwatch" {
 
 module "sns" {
   source      = "../../modules/sns"
-  alert_email = "vitaly@example.com"
+  alert_email = "vitaly2822@gmail.com"
 }
