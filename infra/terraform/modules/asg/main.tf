@@ -30,7 +30,7 @@ resource "aws_security_group" "asg_sg" {
 
 resource "aws_launch_template" "this" {
   name_prefix   = "selena-asg-"
-  image_id      = var.ami_id
+  image_id      = "ami-01592cddfc61fba84"
   instance_type = var.instance_type
   key_name      = var.key_name
 
