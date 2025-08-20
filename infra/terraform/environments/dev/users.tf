@@ -66,3 +66,14 @@ module "sns" {
   source      = "../../modules/sns"
   alert_email = "vitaly2822@gmail.com"
 }
+
+module "asg" {
+  source = "../../modules/asg"
+
+  ami_id               = var.ami_id
+  instance_type        = var.instance_type
+  key_name             = var.key_name
+  vpc_id               = module.vpc.vpc_id
+  subnet_ids           = [module.vpc.public_subnet_id]               # сейчас в публичном сабнете для простоты
+  iam_instance_profile = module.iam.cloudwatch_agent_profile_name
+}
