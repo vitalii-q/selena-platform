@@ -5,3 +5,7 @@ variable "vpc_id"               { type = string }
 variable "subnet_ids"           { type = list(string) } # в каких сабнетах крутить ASG
 variable "iam_instance_profile" { type = string }       # имя Instance Profile (CloudWatchAgent и т.п.)
 
+variable "environment" {
+  description = "Environment name, e.g., dev or prod"
+  type        = string
+}

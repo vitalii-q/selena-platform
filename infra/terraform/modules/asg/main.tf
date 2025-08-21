@@ -43,7 +43,7 @@ resource "aws_launch_template" "this" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name        = "users-service-instance-asg-${aws_autoscaling_group.this.name}"
+      Name        = "users-service-instance-asg"
       Environment = var.environment
       Service     = "users-service"
     }
