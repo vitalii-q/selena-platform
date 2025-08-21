@@ -27,9 +27,9 @@ resource "aws_instance" "users_service" {
                 # Обновление системы
                 yum update -y
 
-                # Установка Docker и git
+                # Установка Docker, git, nano, nc
                 amazon-linux-extras enable docker
-                yum install -y docker git
+                yum install -y docker git nano nc
                 systemctl start docker
                 systemctl enable docker
 
