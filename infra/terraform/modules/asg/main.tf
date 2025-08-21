@@ -82,3 +82,21 @@ resource "aws_autoscaling_policy" "cpu_tgt_tracking" {
     target_value = 50
   }
 }
+
+# Scale-Out policy (increase instances when CPU > 70%)
+resource "aws_autoscaling_policy" "scale_out" {
+  name                   = "selena-scale-out"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+  autoscaling_group_name = aws_autoscaling_group.this.name
+}
+
+# Scale-In policy (decrease instances when CPU < 30%)
+resource "aws_autoscaling_policy" "scale_in" {
+  name                   = "selena-scale-in"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 300
+  autoscaling_group_name = aws_autoscaling_group.this.name
+}

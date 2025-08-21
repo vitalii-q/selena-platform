@@ -1,4 +1,4 @@
-# CloudWatch Alarm для CPU
+# CloudWatch Alarm для CPU (send notification to email)
 resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   alarm_name          = "CPUHighAlarm"
   comparison_operator = "GreaterThanThreshold"
