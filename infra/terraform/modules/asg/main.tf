@@ -40,7 +40,14 @@ resource "aws_launch_template" "this" {
     name = var.iam_instance_profile
   }
 
-  # при желании сюда можно добавить user_data
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name        = "users-service-instance-asg-${aws_autoscaling_group.this.name}"
+      Environment = var.environment
+      Service     = "users-service"
+    }
+  }
 }
 
 resource "aws_autoscaling_group" "this" {
