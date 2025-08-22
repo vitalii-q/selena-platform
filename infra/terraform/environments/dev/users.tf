@@ -30,12 +30,15 @@ module "users_rds" {
   allocated_storage      = 20
   db_name                = "users_db"
   username               = "postgres"
-  password               = "postgres"
+  password               = data.aws_ssm_parameter.db_password.value
   port                   = 5432
   publicly_accessible    = true
   vpc_security_group_ids = [module.vpc.default_security_group_id]
   db_subnet_group_name   = module.vpc.db_subnet_group
   env                    = var.env
+
+  users_sg_id            = module.ec2.users_sg_id
+  vpc_id                 = module.vpc.vpc_id
 }
 
 module "users_service_s3" {
@@ -79,19 +82,6 @@ module "asg" {
   iam_instance_profile = module.iam.cloudwatch_agent_profile_name
 }
 
-module "rds" {
-  source       = "../../modules/rds"
-  users_sg_id  = module.ec2.users_sg_id
-
-  db_identifier         = "users-db"
-  instance_class        = "db.t3.micro"
-  allocated_storage     = 20
-  db_name               = "users_db"
-  username              = "postgres"
-  password              = data.aws_ssm_parameter.db_password.value
-  port                  = 5432
-  publicly_accessible   = true
-  db_subnet_group_name  = module.vpc.db_subnet_group_name
-  env                   = "dev"
-  vpc_security_group_ids = [module.ec2.users_sg_id]
+data "aws_ssm_parameter" "db_password" {
+  name = "/selena/dev/users-db-password"
 }

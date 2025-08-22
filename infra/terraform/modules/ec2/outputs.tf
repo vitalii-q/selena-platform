@@ -11,3 +11,7 @@ output "instance_id" {
   value = aws_instance.users_service[0].id
   description = "ID созданного EC2 экземпляра"
 }
+
+output "users_sg_id" {
+  value = aws_security_group.users_sg.id
+}
