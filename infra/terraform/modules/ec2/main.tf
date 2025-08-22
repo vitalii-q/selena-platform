@@ -28,8 +28,8 @@ resource "aws_instance" "users_service" {
                 yum update -y
 
                 # Установка PostgreSQL client
-                amazon-linux-extras enable postgresql14
-                yum install -y postgresql
+                dnf update -y
+                dnf install -y postgresql15
 
                 # Установка Docker, git, nano, nc
                 amazon-linux-extras enable docker

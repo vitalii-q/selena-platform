@@ -33,7 +33,9 @@ module "users_rds" {
   password               = data.aws_ssm_parameter.db_password.value
   port                   = 5432
   publicly_accessible    = true
-  vpc_security_group_ids = [module.vpc.default_security_group_id]
+  
+  vpc_security_group_ids = [module.vpc.default_security_group_id, module.ec2.users_sg_id]
+
   db_subnet_group_name   = module.vpc.db_subnet_group
   env                    = var.env
 
