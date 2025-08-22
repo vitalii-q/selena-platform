@@ -90,3 +90,21 @@ resource "aws_iam_instance_profile" "selena_ec2_instance_profile" {
   name = "selena-ec2-instance-profile"
   role = aws_iam_role.selena_ec2_role.name
 }
+
+resource "aws_iam_policy" "ec2_rds_read" {
+  name        = "EC2RDSReadPolicy"
+  description = "Allow EC2 to describe RDS instances"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = [
+          "rds:DescribeDBInstances"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}

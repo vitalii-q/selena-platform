@@ -23,3 +23,8 @@ resource "aws_iam_role_policy_attachment" "selena_ec2_cloudwatch" {
   role       = aws_iam_role.selena_ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
+
+resource "aws_iam_role_policy_attachment" "attach_ec2_rds_read" {
+  role       = aws_iam_role.selena_ec2_role.name
+  policy_arn = aws_iam_policy.ec2_rds_read.arn
+}
