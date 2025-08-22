@@ -43,6 +43,16 @@ module "users_rds" {
   vpc_id                 = module.vpc.vpc_id
 }
 
+# Разрешаем EC2 инстансу подключаться к RDS на порт 5432
+resource "aws_security_group_rule" "allow_ec2_to_rds" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  security_group_id        = module.users_rds.rds_sg_id
+  source_security_group_id = module.ec2.users_sg_id
+}
+
 module "users_service_s3" {
   source      = "../../modules/s3"
   bucket_name = "selena-users-service-env-${var.environment}"
