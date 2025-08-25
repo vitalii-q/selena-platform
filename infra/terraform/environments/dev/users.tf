@@ -87,3 +87,14 @@ module "asg" {
 data "aws_ssm_parameter" "db_password" {
   name = "/selena/dev/users-db-password"
 }
+
+# Разрешаем доступ к RDS от security group контейнера users-service
+resource "aws_security_group_rule" "allow_users_service_to_rds" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  security_group_id        = module.users_rds.security_group_id
+  source_security_group_id = module.ec2.users_sg_id
+  description              = "Allow users-service to connect to RDS"
+}
