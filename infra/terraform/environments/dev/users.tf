@@ -94,7 +94,10 @@ resource "aws_security_group_rule" "allow_users_service_to_rds" {
   from_port                = 5432
   to_port                  = 5432
   protocol                 = "tcp"
-  security_group_id        = module.users_rds.security_group_id
-  source_security_group_id = module.ec2.users_sg_id
+  # security_group_id        = module.users_rds.security_group_id
+  security_group_id        = module.users_rds.rds_sg_id
+  cidr_blocks              = ["10.0.1.0/24"]
+  # source_security_group_id = module.ec2.users_sg_id
   description              = "Allow users-service to connect to RDS"
 }
+
