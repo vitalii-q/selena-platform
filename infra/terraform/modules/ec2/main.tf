@@ -83,7 +83,7 @@ resource "aws_instance" "users_service" {
                 # Запускаем контейнер с использованием .env файла
                 sudo -u ec2-user docker run -d \
                   --name selena-users-service \
-                  --env-file /home/ec2-user/selena-users-service/.env \
+                  --env-file .env \
                   -p 9065:9065 \
                   --restart always \
                   selena-users-service:latest

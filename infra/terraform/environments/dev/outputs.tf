@@ -27,3 +27,7 @@ output "ec2_s3_access_profile_name" {
   value = module.iam.ec2_s3_access_profile_name
 }
 
+output "users_sg_id" {
+  description = "ID security group for users-service"
+  value       = module.ec2.users_sg_id
+}
