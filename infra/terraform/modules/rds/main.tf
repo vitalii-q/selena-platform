@@ -13,6 +13,8 @@ resource "aws_db_instance" "users_postgres" {
   db_subnet_group_name    = var.db_subnet_group_name
   skip_final_snapshot     = true
 
+  enabled_cloudwatch_logs_exports = ["postgresql"]
+
   tags = {
     Name = var.db_identifier
     Env  = var.env
@@ -44,3 +46,9 @@ resource "aws_security_group" "rds_sg" {
 data "aws_ssm_parameter" "db_password" {
   name = "/selena/dev/users-db-password"
 }
+
+resource "aws_cloudwatch_log_group" "users_db_logs" {
+  name              = "/aws/rds/users-db-dev"
+  retention_in_days = 14
+}
+
