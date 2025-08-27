@@ -13,7 +13,7 @@ resource "aws_db_instance" "users_postgres" {
   db_subnet_group_name    = var.db_subnet_group_name
   skip_final_snapshot     = true
 
-  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade", "audit", "error", "general", "connection"]
+  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade", "audit", "error", "general"]
 
   tags = {
     Name = var.db_identifier
