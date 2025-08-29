@@ -37,6 +37,8 @@ payments-service/
 notifications-service/
 api-gateway/
 
+infrastructure/
+
 /secure
 
 /k8s
