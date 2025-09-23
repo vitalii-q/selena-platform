@@ -37,11 +37,9 @@ payments-service/
 notifications-service/
 api-gateway/
 
-infrastructure/
+infrastucture/
 
 /secure
-
-/k8s
 
 # Terraform
 *.tfstate
