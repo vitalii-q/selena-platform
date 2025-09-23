@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-service
+  labels:
+    app: users-service
+spec:
+  replicas: 3 # Количество реплик подов
+  selector:
+    matchLabels:
+      app: users-service
+  template:
+    metadata:
+      labels:
+        app: users-service
+    spec:
+      containers:
+        - name: users-service
+          image: <имя_образа>:<тег> # Укажите имя Docker образа и тег
+          ports:
+            - containerPort: 8080 # Укажите порт, на котором работает сервис
+          envFrom:
+            - configMapRef:
+                name: users-service-config
+            - secretRef:
+                name: users-service-secrets
