@@ -2,10 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: users-service
-  labels:
-    app: users-service
+  namespace: users-service
 spec:
-  replicas: 3 # Количество реплик подов
+  replicas: 2
   selector:
     matchLabels:
       app: users-service
@@ -16,11 +15,55 @@ spec:
     spec:
       containers:
         - name: users-service
-          image: <имя_образа>:<тег> # Укажите имя Docker образа и тег
+          image: your-dockerhub-username/users-service:latest
           ports:
-            - containerPort: 8080 # Укажите порт, на котором работает сервис
-          envFrom:
-            - configMapRef:
-                name: users-service-config
-            - secretRef:
-                name: users-service-secrets
+            - containerPort: 8080
+          env:
+            - name: CONFIG_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: users-config
+                  key: CONFIG_FILE
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: users-db-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: users-db-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: users-db-secret
+                  key: POSTGRES_DB
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config
+              readOnly: true
+      initContainers:
+        - name: migrate-db
+          image: your-dockerhub-username/users-service:latest
+          command: ["/bin/sh", "-c", "/app/db/migrate.sh"]
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: users-db-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: users-db-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: users-db-secret
+                  key: POSTGRES_DB
+      volumes:
+        - name: config-volume
+          configMap:
+            name: users-config

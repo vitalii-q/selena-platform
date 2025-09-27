@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: users-config
+  namespace: users-service
+data:
+  CONFIG_FILE: "/app/config/config.yaml"
