@@ -52,3 +52,9 @@ infrastucture/
 
 # AWS credentials
 ~/.aws/ 
+
+# Do not ignore
+!k8s/
+!k8s/users-service/
+!k8s/hotels-service/
+!k8s/bookings-service/
