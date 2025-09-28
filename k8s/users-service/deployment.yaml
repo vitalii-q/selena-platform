@@ -48,7 +48,7 @@ spec:
         - name: migrate-db
           image: users-service:latest
           imagePullPolicy: Never
-          command: ["/bin/sh", "-c", "sh /app/users-service/db/migrate.sh"]
+          command: ["/bin/sh", "-c", "/app/users-service/_docker/entrypoint.sh"]
           env:
             - name: POSTGRES_USER
               valueFrom:
