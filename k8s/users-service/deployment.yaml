@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: users-service
-          image: your-dockerhub-username/users-service:latest
+          image: users-service:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 8080
           env:
@@ -45,8 +46,9 @@ spec:
               readOnly: true
       initContainers:
         - name: migrate-db
-          image: your-dockerhub-username/users-service:latest
-          command: ["/bin/sh", "-c", "/app/db/migrate.sh"]
+          image: users-service:latest
+          imagePullPolicy: Never
+          command: ["/bin/sh", "-c", "sh /app/users-service/db/migrate.sh"]
           env:
             - name: POSTGRES_USER
               valueFrom:
@@ -63,6 +65,10 @@ spec:
                 secretKeyRef:
                   name: users-db-secret
                   key: POSTGRES_DB
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config
+              readOnly: true
       volumes:
         - name: config-volume
           configMap:
