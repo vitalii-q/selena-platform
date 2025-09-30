@@ -40,6 +40,10 @@ spec:
                 secretKeyRef:
                   name: users-db-secret
                   key: POSTGRES_DB
+            - name: POSTGRES_HOST
+              value: "users-db"
+            - name: POSTGRES_PORT
+              value: "5432"
           volumeMounts:
             - name: config-volume
               mountPath: /app/config
@@ -65,6 +69,10 @@ spec:
                 secretKeyRef:
                   name: users-db-secret
                   key: POSTGRES_DB
+            - name: POSTGRES_HOST
+              value: "users-db"
+            - name: POSTGRES_PORT
+              value: "5432"
           volumeMounts:
             - name: config-volume
               mountPath: /app/config
