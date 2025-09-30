@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: users-db-init
+  namespace: users-service
+data:
+  init.sql: |
+    CREATE ROLE users LOGIN PASSWORD 'password';
+    CREATE DATABASE users_db OWNER users;
+    GRANT ALL PRIVILEGES ON DATABASE users_db TO users;
