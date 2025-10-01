@@ -4,10 +4,11 @@ metadata:
   name: users-service
   namespace: users-service
 spec:
+  type: NodePort
   selector:
     app: users-service
   ports:
     - protocol: TCP
-      port: 8080
-      targetPort: 8080
-  type: ClusterIP
+      port: 9065
+      targetPort: 9065
+      nodePort: 30065

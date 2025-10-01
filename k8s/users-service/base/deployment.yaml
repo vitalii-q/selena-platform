@@ -18,7 +18,7 @@ spec:
           image: users-service:latest
           imagePullPolicy: Never
           ports:
-            - containerPort: 8080
+            - containerPort: 9065
           env:
             - name: USERS_POSTGRES_DB_HOST
               value: "users-db-service"
