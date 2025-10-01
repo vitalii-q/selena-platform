@@ -4,7 +4,7 @@ metadata:
   name: users-service
   namespace: users-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: users-service
   ports:
