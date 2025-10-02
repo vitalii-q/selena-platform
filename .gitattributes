@@ -1,0 +1,6 @@
+*.yaml linguist-language=YAML
+*.yml linguist-language=YAML
+*.sh linguist-language=Shell
+*.sql linguist-language=SQL
+helm/** linguist-language=YAML
+k8s/** linguist-language=YAML
