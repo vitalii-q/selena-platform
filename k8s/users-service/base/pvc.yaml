@@ -9,7 +9,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /tmp/users-db-data  # local path on Minikube
+      path: /tmp/users-db-data  # local path on Minikube, data persists here
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

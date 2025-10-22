@@ -21,7 +21,7 @@ spec:
             - containerPort: 9065
           env:
             - name: USERS_POSTGRES_DB_HOST
-              value: "users-db-service"
+              value: "users-db-service"   # [link to DB service]
             - name: USERS_POSTGRES_DB_PORT_INNER
               value: "5432"
             - name: USERS_POSTGRES_DB_USER
