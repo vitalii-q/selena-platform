@@ -42,3 +42,5 @@ db:
   user: "postgres"
   password: "postgres"
   name: "users_db" 
+
+runMode: "k8s"

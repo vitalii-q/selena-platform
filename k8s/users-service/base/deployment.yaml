@@ -39,6 +39,8 @@ spec:
                 secretKeyRef:
                   name: users-db-secret
                   key: POSTGRES_DB
+            - name: RUN_MODE
+              value: "k8s"
           volumeMounts:
             - name: config-volume
               mountPath: /app/config

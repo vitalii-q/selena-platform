@@ -48,6 +48,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Chart.Name }}-db-secret
                   key: POSTGRES_DB
+            - name: RUN_MODE
+              value: "{{ .Values.runMode }}"
           envFrom:
             - configMapRef:
                 name: {{ .Chart.Name }}-config
