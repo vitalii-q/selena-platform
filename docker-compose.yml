@@ -31,12 +31,12 @@ services:
 
   users-service:
     container_name: users-service_${PROJECT_SUFFIX}
-    #image: ghcr.io/vitalii-q/selena/users-service:latest                              # GHCR repository
     image: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/selena-users-service:latest # ECR repository
     restart: always
-    build:
-      context: ./users-service
-      dockerfile: Dockerfile
+    #image: ghcr.io/vitalii-q/selena/users-service:latest                              # GHCR repository
+    #build:
+    #  context: ./users-service
+    #  dockerfile: Dockerfile
     ports:
       - "${USERS_SERVICE_PORT}:${USERS_SERVICE_PORT}"
     depends_on:
